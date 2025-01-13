@@ -7,10 +7,10 @@
 #define MY_STRLEN_LIMIT 15
 
 char mystring[20];
-int8 lenStr = 0;
+int8_t lenStr = 0;
 
 char my_input[20];
-int8 lenInput = 0;
+int8_t lenInput = 0;
 
 char send_buf[20];
 
@@ -89,7 +89,7 @@ void SendString(char *send_str) {
     }
 }
 
-void SendNumberInt16(int num) {
+void SendNumberInt16(int16_t num) {
     if (num == 0) {
         UART_Write('0');
         UART_Write('\r');
@@ -125,8 +125,8 @@ void SendNumberInt16(int num) {
     UART_Write('\n');
 }
 
-void SendNumberInt8(char num) {
-    int num2 = (int)(num);
+void SendNumberInt8(int8_t num) {
+    int16_t num2 = (int16_t)(num);
     SendNumberInt16(num2);
 }
 
@@ -167,12 +167,12 @@ char *GetString() {
     return my_input;
 }
 
-int8 get_int8_input() {
+int8_t get_int8_input() {
     char *input = GetString();
-    int8 x = 0;
+    int8_t x = 0;
     while (1) {
         if (input[0] != '\0') {
-            x = (int8)atoi(input);
+            x = (int8_t)atoi(input);
             SendString("input = ");
             SendNumberInt8(x);
             SendString("\r\n");
@@ -183,12 +183,12 @@ int8 get_int8_input() {
     }
 }
 
-int16 get_int16_input() {
+int16_t get_int16_input() {
     char *input = GetString();
-    int16 x = 0;
+    int16_t x = 0;
     while (1) {
         if (input[0] != '\0') {
-            x = (int16)atoi(input);
+            x = (int16_t)atoi(input);
             SendString("input = ");
             SendNumberInt16(x);
             SendString("\r\n");

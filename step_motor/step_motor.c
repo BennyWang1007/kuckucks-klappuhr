@@ -10,10 +10,10 @@ void step_motor_init() {
     step_motor_phase = 0;
 }
 
-void step_motor_step(int16 degree) {
+void step_motor_step(int16_t degree) {
     accumulated_degree += degree;
     target_step = degree * MOTOR_STEP / 360;
-    int16 step = target_step - accumulated_step;
+    int16_t step = target_step - accumulated_step;
     if (step < 0) step += MOTOR_STEP;
     for (int i = 0; i < step; i++) {
         if (LATC == 0x08) LATC = 0x01;
@@ -24,8 +24,8 @@ void step_motor_step(int16 degree) {
 }
 
 void step_motor_test() {
-    int16 degree;
-    int16 counter = 0;
+    int16_t degree;
+    int16_t counter = 0;
     while (1) {
         switch (step_motor_phase) {
         case 0:

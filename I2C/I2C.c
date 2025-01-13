@@ -32,7 +32,7 @@ void I2C_read() {
     SSPCON2bits.RCEN = 1;
 }
 
-void I2C_write(uint8 data) {
+void I2C_write(uint8_t data) {
     SSPBUF = data;
     SSPCON1bits.SSPM = 0b0010;
 }

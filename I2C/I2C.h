@@ -17,7 +17,7 @@ extern volatile Clockbits_t Clockbits __at(0xF8B);
 
 void I2C_init(void);
 void I2C_read(void);
-void I2C_write(uint8 data);
+void I2C_write(uint8_t data);
 void I2C_start(void);
 void I2C_stop(void);
 void I2C_ack(void);
