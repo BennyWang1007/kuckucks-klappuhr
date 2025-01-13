@@ -20,14 +20,13 @@
 #pragma config LVP = OFF     // Low Voltage (single -supply) In-Circute Serial Pragramming Enable bit
 #pragma config CPD = OFF     // Data EEPROM?Memory Code Protection bit (Data EEPROM code protection off)
 
+void SYSTEM_Initialize(void);
 void get_time_and_print(void);
+
 
 void __interrupt(high_priority) Hi_ISR(void) {
     Timer1_ISR(get_time_and_print);
 }
-
-void SYSTEM_Initialize(void);
-
 
 
 void main(void) {
@@ -42,39 +41,11 @@ void main(void) {
         DS1302_SetIsRunning(1);
     }
     
-    // DS1302_DateTime now;
-    
-    
-    // char buffer[20];
-    // while(1)
-    // {
-    //     now = DS1302_GetDateTime();
-    //     itoa(now.yearFrom2000, buffer, 20);
-    //     UART_Write_Text(buffer);
-    //     UART_Write('/');
-    //     itoa(now.month, buffer, 20);
-    //     UART_Write_Text(buffer);
-    //     UART_Write('/');
-    //     itoa(now.dayOfMonth, buffer, 20);
-    //     UART_Write_Text(buffer);
-    //     UART_Write(' ');
-    //     itoa(now.hour, buffer, 20);
-    //     UART_Write_Text(buffer);
-    //     UART_Write(':');
-    //     itoa(now.minute, buffer, 20);
-    //     UART_Write_Text(buffer);
-    //     UART_Write(':');
-    //     itoa(now.second, buffer, 20);
-    //     UART_Write_Text(buffer);
-    //     UART_Write_Text("\r\n");
-    //     __delay_ms(1000);
-    // }
 //    step_motor_test();
     
     while(1);
-
+    return;
 }
-
 
 void SYSTEM_Initialize(void) {
     UART_Initialize();
