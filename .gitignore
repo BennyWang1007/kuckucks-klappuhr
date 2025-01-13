@@ -1,0 +1,8 @@
+.vscode
+
+build
+debug
+dist
+nbproject
+
+Makefile
