@@ -3,6 +3,8 @@
 build
 debug
 dist
-nbproject
+nbproject/*
+!nbproject/configurations.xml
+
 
 Makefile
