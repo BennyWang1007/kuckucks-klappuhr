@@ -5,9 +5,10 @@
 #include "stdio.h"
 #include "string.h"
 
+#include "constants.c"
 #include "I2C/I2C.h"
 #include "step_motor/step_motor.h"
-#include "constants.c"
+#include "UART/uart.h"
 
 #pragma config OSC = INTIO67 // Oscillator Selection bits
 #pragma config WDT = OFF     // Watchdog Timer Enable bit
@@ -40,6 +41,7 @@ void main(void) {
 
 
 void SYSTEM_Initialize(void) {
+    UART_Initialize();
     I2C_init();
     step_motor_init();
 
