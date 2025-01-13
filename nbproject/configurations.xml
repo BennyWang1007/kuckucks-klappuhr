@@ -9,6 +9,7 @@
       <itemPath>UART/uart.h</itemPath>
       <itemPath>DS1302/ds1302.h</itemPath>
       <itemPath>threewire/threewire.h</itemPath>
+      <itemPath>utils.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

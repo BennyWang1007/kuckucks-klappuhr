@@ -9,7 +9,7 @@
 #include <xc.h>
 #include <stdint.h>
 #include "ds1302.h"
-#include "threewire.h"
+#include "../threewire/threewire.h"
 
 #define _BV(bit) (1 << (bit))
 

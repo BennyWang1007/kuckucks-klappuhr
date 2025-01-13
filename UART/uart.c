@@ -16,34 +16,26 @@ char send_buf[20];
 
 void UART_Initialize() {
 
-    TRISCbits.TRISC6 = 1;
-    TRISCbits.TRISC7 = 1;
-
+    // set output
+    TRISCbits.TRISC6 = 1;            
+    TRISCbits.TRISC7 = 1;            
+    
     //  Setting baud rate
-    if (OSCCONbits.IRCF == 0b110) {         // 4 MHz
-        TXSTAbits.SYNC = 0;                 // clear to enable the asynchronous serial port
-        BAUDCONbits.BRG16 = 0;              // determine using 8/16 bit (SPBRG / SPBRGH + SPBRG)
-        TXSTAbits.BRGH = 0;                 // high baud rate select bit: Asynchronous mode: 1 = High speed, 0 = Low speed (Synchronous mode: Unused)
-        SPBRG = 51;                         // controls the period of a free-running timer (check data sheet)
-    }
-    else if (OSCCONbits.IRCF == 0b001) {    // 125kHz
-        TXSTAbits.SYNC = 0;                 // clear to enable the asynchronous serial port
-        BAUDCONbits.BRG16 = 1;              // determine using 8/16 bit (SPBRG / SPBRGH + SPBRG)
-        TXSTAbits.BRGH = 0;                 // high baud rate select bit: Asynchronous mode: 1 = High speed, 0 = Low speed (Synchronous mode: Unused)
-//        SPBRG = 26;
-        SPBRG = 25;
-    }
-
-    // Serial enable
-    RCSTAbits.SPEN = 1;             // set to configure Uart pin    // TXSTA? // clear to enable the asynchronous serial port
-    PIR1bits.TXIF = 1;              // set when TXREG is empty
-    PIR1bits.RCIF = 0;              // set when reception completes. (ReCieve Int. Flag)
-    TXSTAbits.TXEN = 1;             // enable the transmission
-    RCSTAbits.CREN = 1;             // enable the reception
-    PIE1bits.TXIE = 0;              // set if interrupt is desired
-    IPR1bits.TXIP = 0;              // set if high priority
-    PIE1bits.RCIE = 1;              // set if interrupt is desired
-    IPR1bits.RCIP = 0;              // set if high priority
+    TXSTAbits.SYNC = 0;           // async
+    BAUDCONbits.BRG16 = 0;          
+    TXSTAbits.BRGH = 0;
+    SPBRG = 12;                     // 1200 under 1MHZ, page207
+    
+   //   Serial enable
+    RCSTAbits.SPEN = 1;         // enable
+    PIR1bits.TXIF = 1;
+    PIR1bits.RCIF = 0;          // clear interrupt flag
+    TXSTAbits.TXEN = 1;         // enable tx
+    RCSTAbits.CREN = 1;         // enable rx
+    PIE1bits.TXIE = 0;          // disable tx intterrupt
+    IPR1bits.TXIP = 0;          // low
+    PIE1bits.RCIE = 1;          // enable rx interrupt
+    IPR1bits.RCIP = 0;          // low
 
 }
 

@@ -22,6 +22,8 @@ extern "C" {
 #define OUTPUT 0
 #define INPUT 1
 
+#include "../constants.c"
+    
 extern const uint8_t THREEWIRE_READFLAG;
 
 void ThreeWire_Init();
@@ -33,7 +35,6 @@ void ThreeWire_EndTransmission();
 uint8_t ThreeWire_Read();
 void ThreeWire_Write(uint8_t, uint8_t);
 
-#define _XTAL_FREQ 1000000
 
 
 
