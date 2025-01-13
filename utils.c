@@ -25,7 +25,7 @@ void reverse(char* str, int length)
     }
 }
 
-char itoa(unsigned int num, unsigned char* str, int len)
+char itoa(unsigned int num, char* str, int len)
 {
     unsigned int sum = num;
     unsigned char i = 0;
