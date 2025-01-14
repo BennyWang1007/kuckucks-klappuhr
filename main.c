@@ -83,7 +83,6 @@ void cuckoo_move() {
         cuckoo_out;
         cuckoo_down;
         CuckooBits.phase++;
-        // LATAbits.LA1 = 1;
     } else if (CuckooBits.phase < cuckoo_hour_add1) {
         if (CuckooBits.up) {
             cuckoo_down;
@@ -97,7 +96,6 @@ void cuckoo_move() {
         cuckoo_in;
         CuckooBits.flag = 0;
         CuckooBits.phase = 0;
-        // LATAbits.LA1 = 0;
     }
 }
 
@@ -147,16 +145,25 @@ void process_time() {
     if (hour_buf > 12) hour_buf %= 12;
 
     print_time(now);
+    // if time updated
     if (now.minute != prev_time.minute) {
+        // save now to EEPROM
         save_current_time();
+        // move to next minute
         step_motor_forward(6);
+        // if hour updated
         if (now.hour != prev_time.hour) {
             // cuckoo_hour_add1 = now.hour + 1;
+
+            // cuckoo count
             cuckoo_hour_add1 = hour_buf + 1;
+
+            // cuckoo flag, if this flag -> cuckoo move
             CuckooBits.flag = 1;
             SendString("Cuckoo\r\n");
         }
     }
+    // update time
     prev_time = now;
 }
 
@@ -166,12 +173,14 @@ void timer0_ISR() {
     if (CuckooBits.flag == 0 && chiming_melody_counter == 0) return;
 
     if (chiming_melody_counter == 0) {
+        // start chiming melody
         LATAbits.LA1 = 1;
     }
     chiming_melody_counter++;
     SendNumberUInt8(chiming_melody_counter);
     SendString("\r\n");
     if (chiming_melody_counter > 34) {
+        // stop chiming melody
         LATAbits.LA1 = 0;
         // CuckooBits.flag = 0;
         chiming_melody_counter = 0; 
@@ -238,30 +247,37 @@ void ee_test() {
 }
 
 void clock_correction() {
-    
+    // read saved time in EEPROM to prev_time
     read_prev_time();
+    // get now from DS1302
     now = DS1302_GetDateTime();
     
     print_time(prev_time);
     print_time(now);
 
+    // calculate diff in minutes
     uint16_t time_diff = timediff_in_min(prev_time, now);
+    // move the step motor
     step_motor_forward(time_diff * 6);
+    // save now to EEPROM
     save_current_time();
 }
 
 
 void main(void) {
 
+    // initialize cuckoo
     LATAbits.LA1 = 0;
 
     SYSTEM_Initialize();
 
 //    PR2 = 312;
 
+    // set servo PPM period to 20ms
     PWM_set_period(20000);
     PWM_start();
 
+    // DEBUG: test servo
 //    while(1) {
        cuckoo_out;
 //        // PWM_set_degree(90);
@@ -274,18 +290,21 @@ void main(void) {
        __delay_ms(1000);
 //    }
     
+    // start timers
     Timer0_set_ms(1000);
-    Timer0_start();
+    Timer0_start();     // melody duration
     Timer1_set_ms(1000);
-    Timer1_start();
+    Timer1_start();     // update time
     Timer3_set_ms(500);
-    Timer3_start();
+    Timer3_start();     // button, ADC, cuckoo move
     
+    // start the clock module if it is not running
     if(!DS1302_GetIsRunning())
     {
         DS1302_SetIsRunning(1);
     }
 
+    // for cuckoo electromagnet
     TRISDbits.TRISD3 = 0;
 
 //    step_motor_test();
@@ -299,13 +318,29 @@ void main(void) {
 void SYSTEM_Initialize(void) {
     step_motor_init();
     DS1302_Begin();
+
+    // chiming melody duration
     Timer0_init();
+
+    // update time from clock module
     Timer1_init();
+
+    // check button, ADC, cuckoo move
     Timer3_init();
+
+    // init CCP for servo
     PWM_init();
+
+    // init ADC module
     ADC_init();
+
+    // init UART module
     UART_Initialize();
+
+    // init EEPROM module
     EEPROM_init();
+
+    // correct physical clock to internal clock
     SendString("\r\n\r\n");
     INTCONbits.GIE = 0;
     clock_correction();
@@ -314,6 +349,8 @@ void SYSTEM_Initialize(void) {
     // INTCONbits.INT0IE = 1;
     // INTCON3bits.INT1IE = 1;
     // INTCON3bits.INT2IE = 1;
+
+    // clear button interrupt flag
     INTCONbits.INT0IF = 0;
     INTCON3bits.INT1IF = 0;
     INTCON3bits.INT2IF = 0;
