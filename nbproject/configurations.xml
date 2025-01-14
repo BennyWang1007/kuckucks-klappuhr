@@ -212,7 +212,7 @@
         <property key="programoptions.pgmentry.voltage" value="high"/>
         <property key="programoptions.pgmspeed" value="Med"/>
         <property key="programoptions.preservedataflash" value="false"/>
-        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom" value="true"/>
         <property key="programoptions.preserveeeprom.ranges" value="0-ff"/>
         <property key="programoptions.preserveprogram.ranges" value=""/>
         <property key="programoptions.preserveprogramrange" value="false"/>

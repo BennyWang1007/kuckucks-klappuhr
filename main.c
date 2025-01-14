@@ -162,10 +162,11 @@ void __interrupt(high_priority) Hi_ISR(void) {
 }
 
 void ee_test() {
-//    EEPROM_write(0x23, 0x91);
+    EEPROM_write(0x23, 0x71);
     while (1) {
         SendNumberUInt8(EEPROM_read(0x23));
         SendString("\r\n");
+        EEPROM_write(0x23, 0x81);
         __delay_ms(1000);
     }
 }
@@ -175,14 +176,14 @@ void main(void) {
 
     SYSTEM_Initialize();
     
-    Timer0_set_ms(1000);
-    Timer0_start();
-    Timer1_set_ms(1000);
-    Timer1_start();
-    Timer3_set_ms(500);
-    Timer3_start();
-    PWM_set_period(20000);
-    PWM_start();
+//    Timer0_set_ms(1000);
+//    Timer0_start();
+//    Timer1_set_ms(1000);
+//    Timer1_start();
+//    Timer3_set_ms(500);
+//    Timer3_start();
+//    PWM_set_period(20000);
+//    PWM_start();
     
     if(!DS1302_GetIsRunning())
     {
@@ -207,6 +208,7 @@ void SYSTEM_Initialize(void) {
     Timer3_init();
     PWM_init();
     ADC_init();
+    EEPROM_init();
     // INTCONbits.INT0IE = 1;
     // INTCON3bits.INT1IE = 1;
     // INTCON3bits.INT2IE = 1;
