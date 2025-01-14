@@ -46,13 +46,15 @@ uint8_t cuckoo_hour_add1 = 0;
 
 void ADC_ISR() {
     int16_t adc_value = ADC_read_int16();
-    // SendString("ADC: ");
-    // SendNumberInt16(adc_value);
-    // SendString("\r\n");
-    if (adc_value < 20) {
-        // TODO: decoration lightup
+    //  SendString("ADC: ");
+    //  SendNumberInt16(adc_value);
+    //  SendString("\r\n");
+    if (adc_value < PHOTORESISTOR_THRESHOLD) {
+        // decoration lightup
+        LATAbits.LA2 = 1;
     } else {
-        // TODO: decoration lightdown
+        // decoration lightdown
+        LATAbits.LA2 = 0;
     }
 }
 
@@ -173,7 +175,7 @@ void timer0_ISR() {
     SendNumberUInt8(chiming_melody_counter);
     SendString("\r\n");
     // if (chiming_melody_counter > 34) {
-    if (chiming_melody_counter > 5) {
+    if (chiming_melody_counter > CHIMING_MELODY_DURATION) {
         // stop chiming melody
         LATAbits.LA1 = 0;
         chiming_melody_counter = 0; 
@@ -224,7 +226,9 @@ void clock_correction() {
     // get now from DS1302
     now = DS1302_GetDateTime();
     
+    SendString("Saved time: ");
     print_time(prev_time);
+    SendString("Current time: ");
     print_time(now);
 
     // calculate diff in minutes
@@ -233,6 +237,23 @@ void clock_correction() {
     step_motor_forward(time_diff * 6);
     // save now to EEPROM
     save_current_time();
+    prev_time = now;
+}
+
+void set_time() {
+   DS1302_DateTime_t newtime = {
+       .yearFrom2000 = 25,
+       .month = 1,
+       .dayOfMonth = 15,
+       .hour = 1,
+       .minute = 35,
+       .second = 30,
+       .dayOfWeek = 3
+   };
+   DS1302_SetDateTime(&newtime);
+   now = newtime;
+   save_current_time();
+   prev_time = now;
 }
 
 
@@ -243,6 +264,8 @@ void main(void) {
     CuckooBits.phase = 0;
 
     SYSTEM_Initialize();
+    
+    // set_time();
 
     // set servo PPM period to 20ms
     PWM_set_period(20000);
@@ -281,7 +304,6 @@ void main(void) {
 
 void SYSTEM_Initialize(void) {
     step_motor_init();
-    DS1302_Begin();
 
     // chiming melody duration
     Timer0_init();
@@ -306,9 +328,9 @@ void SYSTEM_Initialize(void) {
 
     // correct physical clock to internal clock
     SendString("\r\n\r\n");
-   INTCONbits.GIE = 0;
-   clock_correction();
-   INTCONbits.GIE = 1;
+    INTCONbits.GIE = 0;
+    clock_correction();
+    INTCONbits.GIE = 1;
     
     DS1302_Begin();
     prev_time = DS1302_GetDateTime();

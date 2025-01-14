@@ -4,11 +4,12 @@ inline void ADC_init() {
     ADCON1 = 0x0E; // Select channel 0, enable ADC
     TRISAbits.RA0 = 1; // Set RA0/AN0 to input
     TRISAbits.RA1 = 0; // Set RA1 to output
+    TRISAbits.RA2 = 0; // decoration light
 
     // ADCON2 = 0x92;
 
     TRISAbits.RA0 = 1;          // set RA0 as input port
-
+ 
     ADCON1bits.VCFG0 = 0;
     ADCON1bits.VCFG1 = 0;
     ADCON1bits.PCFG = 0b1110;   // set AN0 as analog input, others as digital
@@ -35,13 +36,13 @@ inline void ADC_start() {
 
 int8_t ADC_read_int8() {
     ADC_start();
-    return (int8_t)ADRESL;
+    return (int8_t)ADRESH;
 }
 
 int16_t ADC_read_int16() {
     ADC_start();
 #ifdef ADC8BIT
-    return (int16_t)ADRESL;
+    return (int16_t)ADRESH;
 #else
     return (int16_t)(ADRESH << 8) | ADRESL;
 #endif
