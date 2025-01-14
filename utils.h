@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 
-char itoa(unsigned int, unsigned char*, int);
+char itoa(unsigned int, char*, int);
 
 
 #ifdef	__cplusplus

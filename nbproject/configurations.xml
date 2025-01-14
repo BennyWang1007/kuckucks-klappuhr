@@ -10,6 +10,7 @@
       <itemPath>DS1302/ds1302.h</itemPath>
       <itemPath>threewire/threewire.h</itemPath>
       <itemPath>utils.h</itemPath>
+      <itemPath>timer/timer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -26,6 +27,7 @@
       <itemPath>utils.c</itemPath>
       <itemPath>DS1302/ds1302.c</itemPath>
       <itemPath>threewire/threewire.c</itemPath>
+      <itemPath>timer/timer.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
