@@ -75,13 +75,14 @@ void button_ISR() {
 }
 
 void cuckoo_move() {
-    if (CuckooBits.flag == 0) return;
+    if (CuckooBits.flag == 0 && CuckooBits.phase == 0) return;
     SendString("TMR3INT\r\n");
     SendNumberUInt8(cuckoo_hour_add1);
     SendString("\r\n");
     if (CuckooBits.phase == 0) {
         cuckoo_out;
         cuckoo_down;
+        CuckooBits.up = 0;
         CuckooBits.phase++;
         // LATAbits.LA1 = 1;
     } else if (CuckooBits.phase < cuckoo_hour_add1) {
@@ -171,11 +172,10 @@ void timer0_ISR() {
     chiming_melody_counter++;
     SendNumberUInt8(chiming_melody_counter);
     SendString("\r\n");
-    if (chiming_melody_counter > 34) {
+    // if (chiming_melody_counter > 34) {
+    if (chiming_melody_counter > 5) {
         LATAbits.LA1 = 0;
-        // CuckooBits.flag = 0;
         chiming_melody_counter = 0; 
-        // __delay_ms(2000);
     }
 }
 
@@ -216,26 +216,6 @@ void save_current_time() {
     EEPROM_write(0x06, now.dayOfWeek);
 }
 
-void ee_test() {
-    // EEPROM_write(0x23, 0x71);
-    // while (1) {
-    //     SendNumberUInt8(EEPROM_read(0x23));
-    //     SendString("\r\n");
-    //     EEPROM_write(0x23, 0x81);
-    //     __delay_ms(1000);
-    // }
-
-    // TRISAbits.TRISA2 = 0;
-    // LATAbits.LA2 = 1;
-
-    // save_current_time();
-
-    // while (1) {
-    //     read_prev_time();
-    //     print_time(prev_time);
-    // }
-
-}
 
 void clock_correction() {
     
@@ -254,6 +234,7 @@ void clock_correction() {
 void main(void) {
 
     LATAbits.LA1 = 0;
+    CuckooBits.phase = 0;
 
     SYSTEM_Initialize();
 
@@ -261,18 +242,6 @@ void main(void) {
 
     PWM_set_period(20000);
     PWM_start();
-
-//    while(1) {
-       cuckoo_out;
-//        // PWM_set_degree(90);
-//        // CCPR1L = (uint8_t)(150 >> 2);
-//        // CCP1CONbits.DC1B = (150 & 0b11);
-       __delay_ms(1000);
-       cuckoo_in;
-//        // CCPR1L = (uint8_t)(30 >> 2);
-//        // CCP1CONbits.DC1B = (30 & 0b11);
-       __delay_ms(1000);
-//    }
     
     Timer0_set_ms(1000);
     Timer0_start();
@@ -281,15 +250,13 @@ void main(void) {
     Timer3_set_ms(500);
     Timer3_start();
     
-    if(!DS1302_GetIsRunning())
-    {
+    if(!DS1302_GetIsRunning()) {
         DS1302_SetIsRunning(1);
     }
 
     TRISDbits.TRISD3 = 0;
 
 //    step_motor_test();
-    // ee_test();
 
     while(1);
     return;
@@ -298,7 +265,6 @@ void main(void) {
 
 void SYSTEM_Initialize(void) {
     step_motor_init();
-    DS1302_Begin();
     Timer0_init();
     Timer1_init();
     Timer3_init();
@@ -307,9 +273,12 @@ void SYSTEM_Initialize(void) {
     UART_Initialize();
     EEPROM_init();
     SendString("\r\n\r\n");
-    INTCONbits.GIE = 0;
-    clock_correction();
-    INTCONbits.GIE = 1;
+   INTCONbits.GIE = 0;
+   clock_correction();
+   INTCONbits.GIE = 1;
+    
+    DS1302_Begin();
+    prev_time = DS1302_GetDateTime();
 
     // INTCONbits.INT0IE = 1;
     // INTCON3bits.INT1IE = 1;
