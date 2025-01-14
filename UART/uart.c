@@ -81,11 +81,43 @@ void SendString(char *send_str) {
     }
 }
 
+void SendNumberUInt8(uint8_t num) {
+    if (num == 0) {
+        UART_Write('0');
+        return;
+    }
+    
+    char *p = send_buf;
+    while (num > 0) {
+        *p++ = num % 10 + '0';
+        num /= 10;
+    }
+    p--;
+    while (p >= send_buf) {
+        UART_Write(*p--);
+    }
+}
+
+void SendNumberUInt16(uint16_t num) {
+    if (num == 0) {
+        UART_Write('0');
+        return;
+    }
+    
+    char *p = send_buf;
+    while (num > 0) {
+        *p++ = num % 10 + '0';
+        num /= 10;
+    }
+    p--;
+    while (p >= send_buf) {
+        UART_Write(*p--);
+    }
+}
+
 void SendNumberInt16(int16_t num) {
     if (num == 0) {
         UART_Write('0');
-        UART_Write('\r');
-        UART_Write('\n');
         return;
     }
 
@@ -98,23 +130,10 @@ void SendNumberInt16(int16_t num) {
         *p++ = num % 10 + '0';
         num /= 10;
     }
-    *p = '\0';
-
-    // Reverse the string
-    char *start = send_buf;
-    char *end = p - 1;
-    if (*start == '-') start++;
-    while (start < end) {
-        char temp = *start;
-        *start = *end;
-        *end = temp;
-        start++;
-        end--;
+    p--;
+    while (p >= send_buf) {
+        UART_Write(*p--);
     }
-
-    SendString(send_buf);
-    UART_Write('\r');
-    UART_Write('\n');
 }
 
 void SendNumberInt8(int8_t num) {

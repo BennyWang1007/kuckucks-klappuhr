@@ -13,6 +13,8 @@ void MyusartRead(void);
 void SendString(char *send_str);
 void SendNumberInt8(int8_t num);
 void SendNumberInt16(int16_t num);
+void SendNumberUInt8(uint8_t num);
+void SendNumberUInt16(uint16_t num);
 void RecordInput(void);
 int8_t get_int8_input(void);
 int16_t get_int16_input(void);
