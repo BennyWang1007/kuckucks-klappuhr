@@ -7,6 +7,7 @@
 #include "ADC/adc.h"
 #include "constants.c"
 #include "DS1302/ds1302.h"
+#include "EEPROM/eeprom.h"
 #include "PWM/pwm.h"
 #include "step_motor/step_motor.h"
 #include "timer/timer.h"
@@ -155,9 +156,18 @@ void timer0_ISR() {
 
 
 void __interrupt(high_priority) Hi_ISR(void) {
-    Timer0_ISR(timer0_ISR);
-    Timer1_ISR(process_time);
-    Timer3_ISR(TMR3_ISR);
+    // Timer0_ISR(timer0_ISR);
+    // Timer1_ISR(process_time);
+    // Timer3_ISR(TMR3_ISR);
+}
+
+void ee_test() {
+//    EEPROM_write(0x23, 0x91);
+    while (1) {
+        SendNumberUInt8(EEPROM_read(0x23));
+        SendString("\r\n");
+        __delay_ms(1000);
+    }
 }
 
 
@@ -182,7 +192,8 @@ void main(void) {
     TRISDbits.TRISD3 = 0;
 
 //    step_motor_test();
-    
+    ee_test();
+
     while(1);
     return;
 }

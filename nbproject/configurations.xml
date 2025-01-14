@@ -13,6 +13,7 @@
       <itemPath>timer/timer.h</itemPath>
       <itemPath>PWM/pwm.h</itemPath>
       <itemPath>ADC/adc.h</itemPath>
+      <itemPath>EEPROM/eeprom.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -32,6 +33,7 @@
       <itemPath>timer/timer.c</itemPath>
       <itemPath>PWM/pwm.c</itemPath>
       <itemPath>ADC/adc.c</itemPath>
+      <itemPath>EEPROM/eeprom.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
