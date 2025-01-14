@@ -6,6 +6,11 @@
 #define _XTAL_FREQ 1000000
 #define RB0_PRESSED (PORTBbits.RB0 == 0)
 
+#define ADC8BIT
+
+#define SPEEDUP_TEST
+
 #define USE_TIMER1_INTERRUPT
+#define USE_TIMER3_INTERRUPT
 
 #endif  /* _GLOBAL_VAR_H */

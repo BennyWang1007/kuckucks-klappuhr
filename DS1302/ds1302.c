@@ -224,7 +224,7 @@ uint8_t DS1302_GetTrickleChargeSettings()
     return setting;
 }
 
-void DS1302_SetDateTime(const DS1302_DateTime* dateTime)
+void DS1302_SetDateTime(const DS1302_DateTime_t* dateTime)
 {
     ThreeWire_BeginTransmission(DS1302_REG_TIMEDATE_BURST);
 
@@ -244,11 +244,11 @@ void DS1302_SetDateTime(const DS1302_DateTime* dateTime)
 
 }
 
-DS1302_DateTime DS1302_GetDateTime()
+DS1302_DateTime_t DS1302_GetDateTime()
 {
     ThreeWire_BeginTransmission(DS1302_REG_TIMEDATE_BURST | THREEWIRE_READFLAG);
 
-    DS1302_DateTime dateTime;
+    DS1302_DateTime_t dateTime;
     dateTime.second = BcdToUint8(ThreeWire_Read() & 0x7F);
     dateTime.minute = BcdToUint8(ThreeWire_Read());
     dateTime.hour = BcdToBin24Hour(ThreeWire_Read());

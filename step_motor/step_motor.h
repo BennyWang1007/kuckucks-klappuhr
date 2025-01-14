@@ -21,7 +21,8 @@ typedef union {
 extern volatile StepMotorbits_t StepMotorbits __at(0xF8C);
 
 void step_motor_init(void);
-void step_motor_step(int16_t degree);
+void step_motor_step(void);
+void step_motor_forward(int16_t degree);
 void step_motor_test(void);
 
 #endif  /* _STEP_MOTOR_H */

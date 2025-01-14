@@ -23,17 +23,17 @@ typedef struct
     uint8_t minute;
     uint8_t second;
     uint8_t dayOfWeek;
-} DS1302_DateTime;
+} DS1302_DateTime_t;
 
 
-void DS1302_Begin();
-char DS1302_GetIsWriteProtected();
+void DS1302_Begin(void);
+char DS1302_GetIsWriteProtected(void);
 void DS1302_SetIsWriteProtected(char);
-char DS1302_GetIsRunning();
+char DS1302_GetIsRunning(void);
 void DS1302_SetIsRunning(char);
-uint8_t DS1302_GetTrickleChargeSettings();
-void DS1302_SetDateTime(const DS1302_DateTime*);
-DS1302_DateTime DS1302_GetDateTime();
+uint8_t DS1302_GetTrickleChargeSettings(void);
+void DS1302_SetDateTime(const DS1302_DateTime_t*);
+DS1302_DateTime_t DS1302_GetDateTime(void);
 void DS1302_SetMemory(uint8_t memoryAddress, uint8_t value);
 uint8_t DS1302_GetReg(uint8_t);
 void DS1302_SetReg(uint8_t, uint8_t);

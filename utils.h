@@ -14,6 +14,7 @@ extern "C" {
 
 
 char itoa(unsigned int, char*, int);
+void print_time(DS1302_DateTime_t time);
 
 
 #ifdef	__cplusplus

@@ -12,7 +12,7 @@ void PWM_init(void) {
 
 
 void PWM_set_duty_cycle(uint16_t mus) {
-    uint16_t cycle = ((uint32_t)mus * 1000 / (_XTAL_FREQ / 1000)) >> 4;
+    uint16_t cycle = (uint16_t)(((uint32_t)mus * 1000 / (_XTAL_FREQ / 1000)) >> 4);
     CCPR1L = (uint8_t)(cycle >> 2);
     CCP1CONbits.DC1B = (cycle & 0b11);
 }
@@ -20,7 +20,7 @@ void PWM_set_duty_cycle(uint16_t mus) {
 
 void PWM_set_period(uint16_t mus) {
     // (PR2 + 1) * (_XTAL_FREQ / 1000) * 4 * 16 = ms;
-    uint16_t cycle = (((uint32_t)mus * 1000 / (_XTAL_FREQ / 1000)) >> 6) - 1;
+    uint16_t cycle = (uint16_t)((((uint32_t)mus * 1000 / (_XTAL_FREQ / 1000)) >> 6) - 1);
     PR2 = cycle;
 }
 

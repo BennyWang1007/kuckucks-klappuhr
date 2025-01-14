@@ -26,13 +26,13 @@ extern "C" {
     
 extern const uint8_t THREEWIRE_READFLAG;
 
-void ThreeWire_Init();
-void ThreeWire_Reset();
-void ThreeWire_Begin();
-void ThreeWire_End();
+void ThreeWire_Init(void);
+void ThreeWire_Reset(void);
+void ThreeWire_Begin(void);
+void ThreeWire_End(void);
 void ThreeWire_BeginTransmission(uint8_t);
-void ThreeWire_EndTransmission();
-uint8_t ThreeWire_Read();
+void ThreeWire_EndTransmission(void);
+uint8_t ThreeWire_Read(void);
 void ThreeWire_Write(uint8_t, uint8_t);
 
 

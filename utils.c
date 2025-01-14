@@ -9,7 +9,10 @@
 #include <xc.h>
 
 #include <stdlib.h>
+#include "DS1302/ds1302.h"
 #include "step_motor/step_motor.h"
+#include "UART/uart.h"
+#include "utils.h"
 
 void reverse(char* str, int length)
 {
@@ -30,10 +33,10 @@ char itoa(unsigned int num, char* str, int len)
 {
     unsigned int sum = num;
     unsigned char i = 0;
-    unsigned int digit;
+    char digit;
 
     if (len == 0)
-        return -1;
+        return (char)(-1);
 
     do
     {
@@ -43,7 +46,7 @@ char itoa(unsigned int num, char* str, int len)
     } while (sum && (i < (len - 1)));
 
     if (i == (len - 1) && sum)
-        return -1;
+        return (char)(-1);
 
     str[i] = '\0';
 
@@ -55,7 +58,7 @@ char itoa(unsigned int num, char* str, int len)
 
 uint16_t min2step(uint32_t min)   // min in 0 ~ 1440(1 day)
 {
-    uint16_t step = min * MOTOR_STEP / 1440;
+    uint16_t step = (uint16_t)(min * MOTOR_STEP / 1440);
     return step;
 }
 
@@ -68,7 +71,22 @@ uint16_t timediff_in_min(uint8_t h1, uint8_t m1, uint8_t h2, uint8_t m2)
     if (t2 >= t1)   // new time after old time in same day
         diff = t2 - t1;
     else    // new time in next day
-        diff = t1 + 1440 - t1;
+        diff = t2 + 1440 - t1;
 
     return diff;
+}
+
+void print_time(DS1302_DateTime_t time) {
+    SendNumberUInt8(time.yearFrom2000);
+    UART_Write('/');
+    SendNumberUInt8(time.month);
+    UART_Write('/');
+    SendNumberUInt8(time.dayOfMonth);
+    UART_Write(' ');
+    SendNumberUInt8(time.hour);
+    UART_Write(':');
+    SendNumberUInt8(time.minute);
+    UART_Write(':');
+    SendNumberUInt8(time.second);
+    UART_Write_Text("\r\n");
 }
