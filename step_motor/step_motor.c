@@ -35,6 +35,7 @@ void step_motor_step() {
 }
 #include "../UART/uart.h"
 void step_motor_forward(int16_t degree) {
+    if (degree == 0) return;
     accumulated_degree += degree;
     accumulated_degree %= 360;
     target_step = (int16_t)((int32_t)accumulated_degree * MOTOR_STEP / 360);

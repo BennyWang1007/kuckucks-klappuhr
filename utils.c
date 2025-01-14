@@ -62,11 +62,16 @@ uint16_t min2step(uint32_t min)   // min in 0 ~ 1440(1 day)
     return step;
 }
 
-uint16_t timediff_in_min(uint8_t h1, uint8_t m1, uint8_t h2, uint8_t m2)
+uint16_t timediff_in_min(DS1302_DateTime_t from, DS1302_DateTime_t to)
 {
     uint16_t diff = 0;
-    uint16_t t1 = h1 * 60 + m1;
-    uint16_t t2 = h2 * 60 + m2;
+    uint16_t t1 = from.hour * 60 + from.minute;
+    uint16_t t2 = to.hour * 60 + to.minute;
+
+    SendNumberUInt16(t1);
+    UART_Write(' ');
+    SendNumberUInt16(t2);
+    UART_Write_Text("\r\n");
 
     if (t2 >= t1)   // new time after old time in same day
         diff = t2 - t1;

@@ -15,6 +15,7 @@ extern "C" {
 
 char itoa(unsigned int, char*, int);
 void print_time(DS1302_DateTime_t time);
+uint16_t timediff_in_min(DS1302_DateTime_t from, DS1302_DateTime_t to);
 
 
 #ifdef	__cplusplus

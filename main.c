@@ -46,8 +46,9 @@ uint8_t cuckoo_hour_add1 = 0;
 
 void ADC_ISR() {
     int16_t adc_value = ADC_read_int16();
-    SendNumberInt16(adc_value);
-    SendString("\r\n");
+    // SendString("ADC: ");
+    // SendNumberInt16(adc_value);
+    // SendString("\r\n");
     if (adc_value < 20) {
         // TODO: decoration lightup
     } else {
@@ -106,29 +107,54 @@ void TMR3_ISR() {
     cuckoo_move();
 }
 
-int8_t test_minute = 0, test_prev_minute = 0;
-int8_t test_hour = 0, test_prev_hour = 0;
+// int8_t test_minute = 0, test_prev_minute = 0;
+// int8_t test_hour = 0, test_prev_hour = 0;
+int8_t hour_buf;
+
+void save_current_time(void);
 
 void process_time() {
     // get_time_and_print();
     // cuckoo_test();
     // step_motor_forward(6);
-    now = DS1302_GetDateTime();
 
 #ifdef SPEEDUP_TEST // 1sec = 1min
-    now.hour = now.minute;
-    now.hour += 12;
-    if (now.hour > 12) now.hour %= 12;
-    now.minute = now.second;
-    now.second = 0;
+    // now.hour = now.minute;
+    // now.minute = now.second;
+    // now.second = 0;
+    now.minute += 3;
+    if (now.minute >= 60) {
+        now.minute = 0;
+        now.hour += 1;
+        if (now.hour >= 24) {
+            now.hour = 0;
+            now.dayOfMonth += 1;
+            if (now.dayOfMonth >= 31) {
+                now.dayOfMonth = 1;
+                now.month += 1;
+                if (now.month >= 12) {
+                    now.month = 1;
+                    now.yearFrom2000 += 1;
+                }
+            }
+        }
+    }
+    DS1302_SetDateTime(&now);
+#else
+    now = DS1302_GetDateTime();
 #endif
+    hour_buf = now.hour + 12;
+    if (hour_buf > 12) hour_buf %= 12;
 
     print_time(now);
     if (now.minute != prev_time.minute) {
+        save_current_time();
         step_motor_forward(6);
         if (now.hour != prev_time.hour) {
-            cuckoo_hour_add1 = now.hour + 1;
+            // cuckoo_hour_add1 = now.hour + 1;
+            cuckoo_hour_add1 = hour_buf + 1;
             CuckooBits.flag = 1;
+            SendString("Cuckoo\r\n");
         }
     }
     prev_time = now;
@@ -137,7 +163,6 @@ void process_time() {
 uint8_t chiming_melody_counter = 0;
 
 void timer0_ISR() {
-    // 33.6/0.2
     if (CuckooBits.flag == 0 && chiming_melody_counter == 0) return;
 
     if (chiming_melody_counter == 0) {
@@ -156,34 +181,105 @@ void timer0_ISR() {
 
 
 void __interrupt(high_priority) Hi_ISR(void) {
-    // Timer0_ISR(timer0_ISR);
-    // Timer1_ISR(process_time);
-    // Timer3_ISR(TMR3_ISR);
+    Timer0_ISR(timer0_ISR);
+    Timer1_ISR(process_time);
+    Timer3_ISR(TMR3_ISR);
+}
+
+
+void read_prev_time() {
+    uint8_t tmp;
+    tmp = EEPROM_read(0x00);
+    prev_time.yearFrom2000 = tmp;
+    tmp = EEPROM_read(0x01);
+    prev_time.month = tmp;
+    tmp = EEPROM_read(0x02);
+    prev_time.dayOfMonth = tmp;
+    tmp = EEPROM_read(0x03);
+    prev_time.hour = tmp;
+    tmp = EEPROM_read(0x04);
+    prev_time.minute = tmp;
+    tmp = EEPROM_read(0x05);
+    prev_time.second = tmp;
+    tmp = EEPROM_read(0x06);
+    prev_time.dayOfWeek = tmp;
+    print_time(prev_time);
+}
+
+void save_current_time() {
+    EEPROM_write(0x00, now.yearFrom2000);
+    EEPROM_write(0x01, now.month);
+    EEPROM_write(0x02, now.dayOfMonth);
+    EEPROM_write(0x03, now.hour);
+    EEPROM_write(0x04, now.minute);
+    EEPROM_write(0x05, now.second);
+    EEPROM_write(0x06, now.dayOfWeek);
 }
 
 void ee_test() {
-    EEPROM_write(0x23, 0x71);
-    while (1) {
-        SendNumberUInt8(EEPROM_read(0x23));
-        SendString("\r\n");
-        EEPROM_write(0x23, 0x81);
-        __delay_ms(1000);
-    }
+    // EEPROM_write(0x23, 0x71);
+    // while (1) {
+    //     SendNumberUInt8(EEPROM_read(0x23));
+    //     SendString("\r\n");
+    //     EEPROM_write(0x23, 0x81);
+    //     __delay_ms(1000);
+    // }
+
+    // TRISAbits.TRISA2 = 0;
+    // LATAbits.LA2 = 1;
+
+    // save_current_time();
+
+    // while (1) {
+    //     read_prev_time();
+    //     print_time(prev_time);
+    // }
+
+}
+
+void clock_correction() {
+    
+    read_prev_time();
+    now = DS1302_GetDateTime();
+    
+    print_time(prev_time);
+    print_time(now);
+
+    uint16_t time_diff = timediff_in_min(prev_time, now);
+    step_motor_forward(time_diff * 6);
+    save_current_time();
 }
 
 
 void main(void) {
 
+    LATAbits.LA1 = 0;
+
     SYSTEM_Initialize();
+
+//    PR2 = 312;
+
+    PWM_set_period(20000);
+    PWM_start();
+
+//    while(1) {
+       cuckoo_out;
+//        // PWM_set_degree(90);
+//        // CCPR1L = (uint8_t)(150 >> 2);
+//        // CCP1CONbits.DC1B = (150 & 0b11);
+       __delay_ms(1000);
+       cuckoo_in;
+//        // CCPR1L = (uint8_t)(30 >> 2);
+//        // CCP1CONbits.DC1B = (30 & 0b11);
+       __delay_ms(1000);
+//    }
     
-//    Timer0_set_ms(1000);
-//    Timer0_start();
-//    Timer1_set_ms(1000);
-//    Timer1_start();
-//    Timer3_set_ms(500);
-//    Timer3_start();
-//    PWM_set_period(20000);
-//    PWM_start();
+    Timer0_set_ms(1000);
+    Timer0_start();
+    Timer1_set_ms(1000);
+    Timer1_start();
+    Timer3_set_ms(500);
+    Timer3_start();
     
     if(!DS1302_GetIsRunning())
     {
@@ -193,14 +289,14 @@ void main(void) {
     TRISDbits.TRISD3 = 0;
 
 //    step_motor_test();
-    ee_test();
+    // ee_test();
 
     while(1);
     return;
 }
 
+
 void SYSTEM_Initialize(void) {
-    UART_Initialize();
     step_motor_init();
     DS1302_Begin();
     Timer0_init();
@@ -208,7 +304,13 @@ void SYSTEM_Initialize(void) {
     Timer3_init();
     PWM_init();
     ADC_init();
+    UART_Initialize();
     EEPROM_init();
+    SendString("\r\n\r\n");
+    INTCONbits.GIE = 0;
+    clock_correction();
+    INTCONbits.GIE = 1;
+
     // INTCONbits.INT0IE = 1;
     // INTCON3bits.INT1IE = 1;
     // INTCON3bits.INT2IE = 1;
