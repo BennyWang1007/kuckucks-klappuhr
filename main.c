@@ -259,8 +259,9 @@ void set_time() {
 
 void main(void) {
 
-    // initialize cuckoo
+    // initialize cuckoo electromagnet
     LATAbits.LA1 = 0;
+    TRISDbits.TRISD3 = 0;   // output
     CuckooBits.phase = 0;
 
     SYSTEM_Initialize();
@@ -292,8 +293,6 @@ void main(void) {
         DS1302_SetIsRunning(1);
     }
 
-    // for cuckoo electromagnet
-    TRISDbits.TRISD3 = 0;
 
     // step_motor_test();
 
