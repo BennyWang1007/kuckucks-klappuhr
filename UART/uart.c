@@ -34,7 +34,9 @@ void UART_Initialize() {
     RCSTAbits.CREN = 1;         // enable rx
     PIE1bits.TXIE = 0;          // disable tx intterrupt
     IPR1bits.TXIP = 0;          // low
-    PIE1bits.RCIE = 1;          // enable rx interrupt
+//    PIE1bits.RCIE = 1;          // enable rx interrupt
+    PIE1bits.RCIE = 0;          // enable rx interrupt
+
     IPR1bits.RCIP = 0;          // low
 
 }

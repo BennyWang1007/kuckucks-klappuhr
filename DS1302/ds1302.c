@@ -255,6 +255,26 @@ DS1302_DateTime_t DS1302_GetDateTime()
     dateTime.dayOfMonth = BcdToUint8(ThreeWire_Read());
     dateTime.month = BcdToUint8(ThreeWire_Read());
 
+#ifdef SPEEDUP_TEST
+    uint16_t second, minute, hour;
+    second = dateTime.second * SPEEDUP_MULTIPLIER;
+    minute = dateTime.minute * SPEEDUP_MULTIPLIER;
+    hour = dateTime.hour * SPEEDUP_MULTIPLIER;
+    if (second >= 60) {
+        minute += second / 60;
+        dateTime.second = second % 60;
+    }
+    if (minute >= 60) {
+        hour += minute / 60;
+        dateTime.minute = minute % 60;
+    }
+    if (hour >= 24) {
+        dateTime.hour = hour % 24;
+    } else {
+        dateTime.hour = (uint8_t)hour;
+    }
+#endif
+
     ThreeWire_Read();  // throwing away day of week as we calculate it
     
     dateTime.yearFrom2000 = BcdToUint8(ThreeWire_Read());

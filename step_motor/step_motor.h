@@ -2,13 +2,14 @@
 #define _STEP_MOTOR_H
 
 #include "../constants.c"
+#include "../UART/uart.h"
 
 #define MOTOR_STEP 2048
 #define MOTOR_DELAY 5
 
 int16_t accumulated_degree = 0;
-int16_t accumulated_step = 0;
-int16_t target_step = 0;
+uint16_t accumulated_step = 0;
+uint16_t target_step = 0;
 int8_t step_motor_phase;
 
 typedef union {

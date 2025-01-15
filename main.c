@@ -17,7 +17,7 @@
 #pragma config OSC = INTIO67 // Oscillator Selection bits
 #pragma config WDT = OFF     // Watchdog Timer Enable bit
 #pragma config PWRT = OFF    // Power-up Enable bit
-#pragma config BOREN = ON    // Brown-out Reset Enable bit
+#pragma config BOREN = OFF    // Brown-out Reset Enable bit
 #pragma config PBADEN = OFF  // Watchdog Timer Enable bit
 #pragma config LVP = OFF     // Low Voltage (single -supply) In-Circute Serial Pragramming Enable bit
 #pragma config CPD = OFF     // Data EEPROM?Memory Code Protection bit (Data EEPROM code protection off)
@@ -46,9 +46,9 @@ uint8_t cuckoo_hour_add1 = 0;
 
 void ADC_ISR() {
     int16_t adc_value = ADC_read_int16();
-    //  SendString("ADC: ");
-    //  SendNumberInt16(adc_value);
-    //  SendString("\r\n");
+//    SendString("ADC: ");
+//    SendNumberInt16(adc_value);
+//    SendString("\r\n");
     if (adc_value < PHOTORESISTOR_THRESHOLD) {
         // decoration lightup
         LATAbits.LA2 = 1;
@@ -78,9 +78,9 @@ void button_ISR() {
 
 void cuckoo_move() {
     if (CuckooBits.flag == 0 && CuckooBits.phase == 0) return;
-    SendString("TMR3INT\r\n");
-    SendNumberUInt8(cuckoo_hour_add1);
-    SendString("\r\n");
+//    SendString("Cuckoo Move\r\n");
+    // SendNumberUInt8(cuckoo_hour_add1);
+    // SendString("\r\n");
     if (CuckooBits.phase == 0) {
         cuckoo_out;
         cuckoo_down;
@@ -104,7 +104,6 @@ void cuckoo_move() {
 
 void TMR3_ISR() {
     button_ISR();
-    ADC_ISR();
     cuckoo_move();
 }
 
@@ -113,32 +112,8 @@ int8_t hour_buf;
 void save_current_time(void);
 
 void process_time() {
-    // get_time_and_print();
-    // cuckoo_test();
-    // step_motor_forward(6);
 
-#ifdef SPEEDUP_TEST 
-    now.minute += 3;    // 1sec = 3min
-    if (now.minute >= 60) {
-        now.minute = 0;
-        now.hour += 1;
-        if (now.hour >= 24) {
-            now.hour = 0;
-            now.dayOfMonth += 1;
-            if (now.dayOfMonth >= 31) {
-                now.dayOfMonth = 1;
-                now.month += 1;
-                if (now.month >= 12) {
-                    now.month = 1;
-                    now.yearFrom2000 += 1;
-                }
-            }
-        }
-    }
-    DS1302_SetDateTime(&now);
-#else
     now = DS1302_GetDateTime();
-#endif
     hour_buf = now.hour + 12;
     if (hour_buf > 12) hour_buf %= 12;
 
@@ -148,7 +123,10 @@ void process_time() {
         // save now to EEPROM
         save_current_time();
         // move to next minute
-        step_motor_forward(6);
+        int16_t diff = timediff_in_min(prev_time, now);
+        for (int i = 0; i < diff; i++) {
+            step_motor_forward(6);
+        }
         // if hour updated
         if (now.hour != prev_time.hour) {
             // cuckoo count
@@ -165,6 +143,7 @@ void process_time() {
 uint8_t chiming_melody_counter = 0;
 
 void timer0_ISR() {
+    ADC_ISR();
     if (CuckooBits.flag == 0 && chiming_melody_counter == 0) return;
 
     if (chiming_melody_counter == 0) {
@@ -172,8 +151,8 @@ void timer0_ISR() {
         LATAbits.LA1 = 1;
     }
     chiming_melody_counter++;
-    SendNumberUInt8(chiming_melody_counter);
-    SendString("\r\n");
+    // SendNumberUInt8(chiming_melody_counter);
+    // SendString("\r\n");
     // if (chiming_melody_counter > 34) {
     if (chiming_melody_counter > CHIMING_MELODY_DURATION) {
         // stop chiming melody
@@ -233,6 +212,9 @@ void clock_correction() {
 
     // calculate diff in minutes
     uint16_t time_diff = timediff_in_min(prev_time, now);
+    SendString("Time diff: ");
+    SendNumberUInt16(time_diff);
+    SendString("\r\n");
     // move the step motor
     step_motor_forward(time_diff * 6);
     // save now to EEPROM
@@ -240,45 +222,59 @@ void clock_correction() {
     prev_time = now;
 }
 
-void set_time() {
+void set_EEPROM_time(uint8_t hour, uint8_t minute) {
    DS1302_DateTime_t newtime = {
        .yearFrom2000 = 25,
        .month = 1,
        .dayOfMonth = 15,
-       .hour = 1,
-       .minute = 35,
-       .second = 30,
+       .hour = hour,
+       .minute = minute,
+       .second = 0,
        .dayOfWeek = 3
    };
-   DS1302_SetDateTime(&newtime);
    now = newtime;
    save_current_time();
    prev_time = now;
 }
 
 
-void main(void) {
+void set_clock_time(uint8_t hour, uint8_t minute, uint8_t second) {
+    DS1302_DateTime_t new = {
+        .yearFrom2000 = 25,
+        .month = 1,
+        .dayOfMonth = 15,
+        .hour = hour,
+        .minute = minute,
+        .second = second,
+        .dayOfWeek = 3
+    };
+    DS1302_SetDateTime(&new);
+}
 
+
+void main(void) {
+    
+    // set time of timer module
+    // DS1302_Begin();
+    // set_clock_time(17, 32, 20);
+
+    // set time of EEPROM
+    // EEPROM_init();
+    // set_EEPROM_time(17, 55);
+    // while (1);
+
+    // for cuckoo electromagnet
+    TRISDbits.TRISD3 = 0;
     // initialize cuckoo
     LATAbits.LA1 = 0;
     CuckooBits.phase = 0;
 
     SYSTEM_Initialize();
-    
-    // set_time();
 
     // set servo PPM period to 20ms
     PWM_set_period(20000);
     PWM_start();
 
-    // DEBUG: test servo
-    // while(1) {
-    //    cuckoo_out;
-    //    __delay_ms(1000);
-    //    cuckoo_in;
-    //    __delay_ms(1000);
-    // }
-    
     // start timers
     Timer0_set_ms(1000);
     Timer0_start();     // melody duration
@@ -292,12 +288,10 @@ void main(void) {
         DS1302_SetIsRunning(1);
     }
 
-    // for cuckoo electromagnet
-    TRISDbits.TRISD3 = 0;
-
     // step_motor_test();
-
+    SendString("Halt\r\n");
     while(1);
+
     return;
 }
 
@@ -327,13 +321,11 @@ void SYSTEM_Initialize(void) {
     EEPROM_init();
 
     // correct physical clock to internal clock
+    DS1302_Begin();
     SendString("\r\n\r\n");
     INTCONbits.GIE = 0;
     clock_correction();
     INTCONbits.GIE = 1;
-    
-    DS1302_Begin();
-    prev_time = DS1302_GetDateTime();
 
     // INTCONbits.INT0IE = 1;
     // INTCON3bits.INT1IE = 1;

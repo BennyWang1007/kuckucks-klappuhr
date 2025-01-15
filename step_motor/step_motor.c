@@ -33,26 +33,26 @@ void step_motor_step() {
         break;
     }
 }
-#include "../UART/uart.h"
+
 void step_motor_forward(int16_t degree) {
     if (degree == 0) return;
     accumulated_degree += degree;
-    accumulated_degree %= 360;
-    target_step = (int16_t)((int32_t)accumulated_degree * MOTOR_STEP / 360);
-//    SendString("target_step = ");
-//    SendNumberInt16(target_step);
-//    SendString("\r\n");
-    int16_t step;
+    target_step = (uint16_t)((uint32_t)(accumulated_degree) * MOTOR_STEP / 360);
+    // SendString("target_step = ");
+    // SendNumberUInt16(target_step);
+    // SendString("\r\n");
+    uint16_t step;
     if (accumulated_step < target_step) step = target_step - accumulated_step;
     else step = MOTOR_STEP - accumulated_step + target_step;
-//    SendString("step = ");
-//    SendNumberInt16(step);
-//    SendString("\r\n");
+    // SendString("step = ");
+    // SendNumberUInt16(step);
+    // SendString("\r\n");
     for (int i = 0; i < step; i++) {
         step_motor_step();
         __delay_ms(MOTOR_DELAY);
     }
     accumulated_step = target_step % MOTOR_STEP;
+    accumulated_degree %= 360;
 }
 
 void step_motor_test() {

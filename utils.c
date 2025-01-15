@@ -68,11 +68,6 @@ uint16_t timediff_in_min(DS1302_DateTime_t from, DS1302_DateTime_t to)
     uint16_t t1 = from.hour * 60 + from.minute;
     uint16_t t2 = to.hour * 60 + to.minute;
 
-    SendNumberUInt16(t1);
-    UART_Write(' ');
-    SendNumberUInt16(t2);
-    UART_Write_Text("\r\n");
-
     if (t2 >= t1)   // new time after old time in same day
         diff = t2 - t1;
     else    // new time in next day
