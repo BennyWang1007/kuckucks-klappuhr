@@ -263,10 +263,9 @@ void main(void) {
     // set_EEPROM_time(17, 55);
     // while (1);
 
-    // for cuckoo electromagnet
-    TRISDbits.TRISD3 = 0;
-    // initialize cuckoo
+    // initialize cuckoo electromagnet
     LATAbits.LA1 = 0;
+    TRISDbits.TRISD3 = 0;   // output
     CuckooBits.phase = 0;
 
     SYSTEM_Initialize();

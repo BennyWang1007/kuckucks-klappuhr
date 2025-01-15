@@ -58,7 +58,7 @@ char itoa(unsigned int num, char* str, int len)
 
 uint16_t min2step(uint32_t min)   // min in 0 ~ 1440(1 day)
 {
-    uint16_t step = (uint16_t)(min * MOTOR_STEP / 1440);
+    uint16_t step = (uint16_t)(min * MOTOR_STEP / 60);
     return step;
 }
 
